@@ -3,6 +3,7 @@ using System.Linq;
 using Northwind_console.Model;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 // See https://aka.ms/new-console-template for more information
 string path = Directory.GetCurrentDirectory() + "\\nlog.config";
@@ -85,11 +86,11 @@ try
             int id = int.Parse(Console.ReadLine());
             Console.Clear();
             logger.Info($"CategoryId {id} selected");
-            Category category = db.Categories.FirstOrDefault(c => c.CategoryId == id);
+            Category category = db.Categories.Include("Products").FirstOrDefault(c => c.CategoryId == id);
             Console.WriteLine($"{category.CategoryName} - {category.Description}");
             foreach (Product p in category.Products)
             {
-                Console.WriteLine(p.ProductName);
+                Console.WriteLine($"\t{p.ProductName}");
             }
         }
         Console.WriteLine();
