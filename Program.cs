@@ -22,11 +22,15 @@ try
         Console.WriteLine("2) Add Category");
         Console.WriteLine("3) Display Category and related products");
         Console.WriteLine("4) Display all Categories and their related products");
+        Console.WriteLine("5) Display Product");
+        Console.WriteLine("6) Display All Products");
+        Console.WriteLine("7) Add Product");
+        Console.WriteLine("8) Edit a Product");
         Console.WriteLine("\"q\" to quit");
         choice = Console.ReadLine();
         Console.Clear();
         logger.Info($"Option {choice} selected");
-        if (choice == "1")
+        if (choice == "1")  //Display Categories
         {
             var query = db.Categories.OrderBy(p => p.CategoryName);
 
@@ -39,7 +43,7 @@ try
             }
             Console.ForegroundColor = ConsoleColor.White;
         }
-                else if (choice == "2")
+                else if (choice == "2") //Add Category
         {
             Category category = new Category();
             Console.WriteLine("Enter Category Name:");
@@ -73,7 +77,7 @@ try
                     logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
                 }
             }
-        }        else if (choice == "3")
+        }        else if (choice == "3")    //Display Category and related products
         {
             var query = db.Categories.OrderBy(p => p.CategoryId);
 
@@ -94,7 +98,7 @@ try
                 Console.WriteLine($"\t{p.ProductName}");
             }
         }
-                else if (choice == "4")
+                else if (choice == "4") //Display all Categories and their related products
         {
             var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
             foreach (var item in query)
@@ -106,6 +110,23 @@ try
                 }
             }
         }
+                else if (choice == "5") //Display Product
+        {
+
+        }
+                else if (choice == "6") //Display All Products
+        {
+
+        }
+                else if (choice == "7") //Add Product
+        {
+
+        }
+                else if (choice == "8") //Edit a Product
+        {
+
+        }
+        
         Console.WriteLine();
 
     } while (choice.ToLower() != "q");
