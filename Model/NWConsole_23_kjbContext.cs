@@ -29,6 +29,25 @@ namespace Northwind_console.Model
         public virtual DbSet<Supplier> Suppliers { get; set; }
         public virtual DbSet<Territory> Territories { get; set; }
 
+        public void AddProduct(Product newProduct)
+        {
+            this.Products.Add(newProduct);
+            this.SaveChanges();
+        }
+
+        public void DeleteProduct(Product product)
+        {
+            this.Products.Remove(product);
+            this.SaveChanges();
+        }
+
+        public void EditProduct(Product editProduct)
+        {
+            Product product = this.Products.Find(editProduct.ProductId);
+            product.ProductName = editProduct.ProductName;
+            this.SaveChanges();
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
