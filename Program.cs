@@ -50,7 +50,7 @@ try
             category.CategoryName = Console.ReadLine();
             Console.WriteLine("Enter the Category Description:");
             category.Description = Console.ReadLine();
-                        ValidationContext context = new ValidationContext(category, null, null);
+            ValidationContext context = new ValidationContext(category, null, null);
             List<ValidationResult> results = new List<ValidationResult>();
 
             var isValid = Validator.TryValidateObject(category, context, results, true);
@@ -132,6 +132,47 @@ try
         }
                 else if (choice == "6") //Display All Products; user select all, active, or discontinued
         {
+            Console.WriteLine("Please select which products to display: \n1: All Products\n2: All Active Products\n3: Discontinued Products");
+            choice = Console.ReadLine();
+            Console.Clear();
+            logger.Info($"Option {choice} selected");
+            if(choice == "1")
+            {
+                var query = db.Products.OrderBy(p => p.ProductId);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{query.Count()} records returned");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                foreach (var item in query)
+                {
+                    Console.WriteLine($"{item.ProductId} - {item.ProductName}");
+                }
+                Console.ForegroundColor = ConsoleColor.Black;
+            } else if (choice == "2")
+            {
+                var query = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == false);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{query.Count()} records returned");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                foreach (var item in query)
+                {
+                    Console.WriteLine($"{item.ProductId} - {item.ProductName}");
+                }
+                Console.ForegroundColor = ConsoleColor.Black;
+            } else if (choice == "3")
+            {
+                var query = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == true);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{query.Count()} records returned");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                foreach (var item in query)
+                {
+                    Console.WriteLine($"{item.ProductId} - {item.ProductName}");
+                }
+                Console.ForegroundColor = ConsoleColor.Black;
+            }
 
         }
                 else if (choice == "7") //Add Product
