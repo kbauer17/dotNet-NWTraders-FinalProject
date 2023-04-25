@@ -225,6 +225,28 @@ try
         }
                 else if (choice == "8") //Edit a Product
         {
+            Console.WriteLine("Choose a product to edit:");
+            var products = db.Products.OrderBy(p => p.ProductId);
+            foreach (var item in products)
+            {
+                Console.WriteLine($"{item.ProductId}: {item.ProductName}");
+            }
+            if (int.TryParse(Console.ReadLine(), out int ProductId))
+            {
+                Product editProduct = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
+                if(editProduct != null)
+                {
+                    Product UpdatedProduct = InputProduct(db, logger);
+                    if(UpdatedProduct != null)
+                    {
+                        UpdatedProduct.ProductId = editProduct.ProductId;
+                        db.EditProduct(UpdatedProduct);
+                        logger.Info($"Product (id: {editProduct.ProductId}) updated");
+                    }
+                }
+            } else {
+                logger.Error("Invalid Product ID");
+            }
 
         }
         
@@ -238,3 +260,31 @@ catch (Exception ex)
 }
 
 logger.Info("Program ended");
+
+
+static Product InputProduct(NWConsole_23_kjbContext db, Logger logger)
+{
+    Product product = new Product();
+    Console.WriteLine("Enter the Product name");
+    product.ProductName = Console.ReadLine();
+
+    ValidationContext context = new ValidationContext(product, null, null);
+    List<ValidationResult> results = new List<ValidationResult>();
+
+    var isValid = Validator.TryValidateObject(product, context, results, true);
+    if (isValid)
+    {
+        // prevent duplicate product names
+        if (db.Products.Any(p => p.ProductName == product.ProductName)) {
+            // generate error
+             results.Add(new ValidationResult("Product name exists", new string[] { "Name" }));
+        } else {
+            return product;
+        }
+    }
+     foreach (var result in results)
+    {
+        logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+    }
+    return null;
+}
