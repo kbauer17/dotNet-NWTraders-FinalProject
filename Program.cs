@@ -116,7 +116,29 @@ try
         }
                 else if (choice == "5") //Edit a Category Name
         {
-            
+            Console.WriteLine("Choose a category to edit:");
+            var categories = db.Categories.OrderBy(c => c.CategoryId);
+            foreach (var item in categories)
+            {
+                Console.WriteLine($"{item.CategoryId}: {item.CategoryName}");
+            }
+            if (int.TryParse(Console.ReadLine(), out int CategoryId))
+            {
+                Category editCategory = db.Categories.FirstOrDefault(c => c.CategoryId == CategoryId);
+                if(editCategory != null)
+                {
+                    Category UpdatedCategory = InputCategory(db, logger);
+                    if(UpdatedCategory != null)
+                    {
+                        UpdatedCategory.CategoryId = editCategory.CategoryId;
+                        db.EditCategory(UpdatedCategory);
+                        logger.Info($"Product (id: {editCategory.CategoryId}) updated");
+                    }
+                }
+            } else {
+                logger.Error("Invalid Product ID");
+            }
+           
         }
                 else if (choice == "6") //Display a Product and all of its fields
         {
@@ -274,6 +296,33 @@ static Product InputProduct(NWConsole_23_kjbContext db, Logger logger)
              results.Add(new ValidationResult("Product name exists", new string[] { "Name" }));
         } else {
             return product;
+        }
+    }
+     foreach (var result in results)
+    {
+        logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+    }
+    return null;
+}
+
+static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
+{
+    Category category = new Category();
+    Console.WriteLine("Enter the Category name");
+    category.CategoryName = Console.ReadLine();
+
+    ValidationContext context = new ValidationContext(category, null, null);
+    List<ValidationResult> results = new List<ValidationResult>();
+
+    var isValid = Validator.TryValidateObject(category, context, results, true);
+    if (isValid)
+    {
+        // prevent duplicate category names
+        if (db.Categories.Any(c => c.CategoryName == category.CategoryName)) {
+            // generate error
+             results.Add(new ValidationResult("Category name exists", new string[] { "Name" }));
+        } else {
+            return category;
         }
     }
      foreach (var result in results)
