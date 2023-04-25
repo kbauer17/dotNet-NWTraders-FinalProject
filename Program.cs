@@ -177,14 +177,14 @@ try
         }
                 else if (choice == "7") //Add Product
         {
-            Product newProduct = new Product();
+            Product newProduct = InputProduct(db, logger);
+            if(newProduct != null)
+            {
                 // auto-generate the new ProductID
             var query = db.Products.OrderByDescending(p => p.ProductId).FirstOrDefault();
             newProduct.ProductId=query.ProductId+1;
 
                 // obtain user input for all other fields
-            Console.Write("Enter the Product Name>>  ");
-                newProduct.ProductName=Console.ReadLine();
             Console.Write("\nEnter the Supplier ID>>  ");
                 newProduct.SupplierId=Convert.ToInt32(Console.ReadLine());
             Console.Write("\nEnter the Category ID>>  ");
@@ -200,23 +200,9 @@ try
             Console.Write("\nEnter the Reorder Level>>  ");
                 newProduct.ReorderLevel=Convert.ToInt16(Console.ReadLine());
 
-            ValidationContext context = new ValidationContext(newProduct,null,null);
-            List<ValidationResult> results = new List<ValidationResult>();
+            Console.WriteLine(newProduct.DisplayHeader());
+            Console.WriteLine(newProduct);
 
-            var isValid = Validator.TryValidateObject(newProduct, context, results, true);
-            if(isValid)
-            {
-                // prevent duplicate product name
-                if(db.Products.Any(p => p.ProductName == newProduct.ProductName)){
-                    //generate error
-                    results.Add(new ValidationResult("Product name exists", new string[]{"ProductName"}));
-                }
-            }
-            foreach (var result in results)
-            {
-                logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
-            }
-            if(newProduct != null){
                 db.AddProduct(newProduct);
                 logger.Info("Product added - {name}",newProduct.ProductName);
             }
