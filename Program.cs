@@ -22,10 +22,11 @@ try
         Console.WriteLine("2) Add Category");
         Console.WriteLine("3) Display Category and related products");
         Console.WriteLine("4) Display all Categories and their related products");
-        Console.WriteLine("5) Display a Product");
-        Console.WriteLine("6) Display All Products");
-        Console.WriteLine("7) Add Product");
-        Console.WriteLine("8) Edit a Product");
+        Console.WriteLine("5) Edit a Category Name");
+        Console.WriteLine("6) Display a Product");
+        Console.WriteLine("7) Display All Products");
+        Console.WriteLine("8) Add Product");
+        Console.WriteLine("9) Edit a Product Name");
         Console.WriteLine("\"q\" to quit");
         choice = Console.ReadLine();
         Console.Clear();
@@ -77,7 +78,7 @@ try
                     logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
                 }
             }
-        }        else if (choice == "3")    //Display Category and related products
+        }        else if (choice == "3")    //Display Category and related active products
         {
             var query = db.Categories.OrderBy(p => p.CategoryId);
 
@@ -95,7 +96,8 @@ try
             Console.WriteLine($"{category.CategoryName} - {category.Description}");
             foreach (Product p in category.Products)
             {
-                Console.WriteLine($"\t{p.ProductName}");
+                if(p.Discontinued == false)
+                    Console.WriteLine($"\t{p.ProductName}");
             }
         }
                 else if (choice == "4") //Display all Categories and their related products
@@ -110,7 +112,11 @@ try
                 }
             }
         }
-                else if (choice == "5") //Display a Product and all of its fields
+                else if (choice == "5") //Edit a Category Name
+        {
+            
+        }
+                else if (choice == "6") //Display a Product and all of its fields
         {
             var query = db.Products.OrderBy(p => p.ProductId);
 
@@ -130,7 +136,7 @@ try
             Console.WriteLine(showProduct);
 
         }
-                else if (choice == "6") //Display All Products; user select all, active, or discontinued
+                else if (choice == "7") //Display All Products; user select all, active, or discontinued
         {
             Console.WriteLine("Please select which products to display: \n1: All Products\n2: All Active Products\n3: Discontinued Products");
             choice = Console.ReadLine();
@@ -175,7 +181,7 @@ try
             }
 
         }
-                else if (choice == "7") //Add Product
+                else if (choice == "8") //Add Product
         {
             Product newProduct = InputProduct(db, logger);
             if(newProduct != null)
@@ -209,7 +215,7 @@ try
 
 
         }
-                else if (choice == "8") //Edit a Product
+                else if (choice == "9") //Edit a Product
         {
             Console.WriteLine("Choose a product to edit:");
             var products = db.Products.OrderBy(p => p.ProductId);
