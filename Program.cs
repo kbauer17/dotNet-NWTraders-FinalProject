@@ -57,7 +57,6 @@ try
             var isValid = Validator.TryValidateObject(category, context, results, true);
             if (isValid)
             {
-                //logger.Info("Validation passed");
                 // check for unique name
                 if (db.Categories.Any(c => c.CategoryName == category.CategoryName))
                 {
@@ -68,7 +67,9 @@ try
                 else
                 {
                     logger.Info("Validation passed");
-                    // TODO: save category to db
+                    // save category to db
+                    db.AddCategory(category);
+                    logger.Info(" Category added - {name}",category.CategoryName);
                 }
             }
             if (!isValid)
