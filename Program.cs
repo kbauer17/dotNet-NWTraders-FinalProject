@@ -22,7 +22,7 @@ try
         Console.WriteLine("2) Add Category");
         Console.WriteLine("3) Display Category and related products");
         Console.WriteLine("4) Display all Categories and their related products");
-        Console.WriteLine("5) Display Product");
+        Console.WriteLine("5) Display a Product");
         Console.WriteLine("6) Display All Products");
         Console.WriteLine("7) Add Product");
         Console.WriteLine("8) Edit a Product");
@@ -110,11 +110,27 @@ try
                 }
             }
         }
-                else if (choice == "5") //Display Product
+                else if (choice == "5") //Display a Product and all of its fields
         {
+            var query = db.Products.OrderBy(p => p.ProductId);
+
+            Console.WriteLine("Select the product you want to display:");
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            foreach (var item in query)
+            {
+                Console.WriteLine($"{item.ProductId}) {item.ProductName}");
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+            int id = int.Parse(Console.ReadLine());
+            Console.Clear();
+            logger.Info($"ProductId {id} selected");
+                // display selected product and all of its fields
+            Product showProduct = db.Products.FirstOrDefault(p=>p.ProductId==id);
+            Console.WriteLine(showProduct.DisplayHeader());
+            Console.WriteLine(showProduct);
 
         }
-                else if (choice == "6") //Display All Products
+                else if (choice == "6") //Display All Products; user select all, active, or discontinued
         {
 
         }
