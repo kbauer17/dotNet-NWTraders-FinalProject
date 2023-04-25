@@ -100,7 +100,7 @@ try
                     Console.WriteLine($"\t{p.ProductName}");
             }
         }
-                else if (choice == "4") //Display all Categories and their related products
+                else if (choice == "4") //Display all Categories and their related active products
         {
             var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
             foreach (var item in query)
@@ -108,6 +108,7 @@ try
                 Console.WriteLine($"{item.CategoryName}");
                 foreach (Product p in item.Products)
                 {
+                    if(p.Discontinued == false)
                     Console.WriteLine($"\t{p.ProductName}");
                 }
             }
