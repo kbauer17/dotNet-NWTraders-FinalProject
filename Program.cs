@@ -18,10 +18,11 @@ try
     string choice;
     do
     {
+            Console.ForegroundColor = ConsoleColor.Black;
         Console.WriteLine("1) Display Categories");
         Console.WriteLine("2) Add Category");
-        Console.WriteLine("3) Display Category and related products");
-        Console.WriteLine("4) Display all Categories and their related products");
+        Console.WriteLine("3) Display a Category with its active products");
+        Console.WriteLine("4) Display all Categories with their active products");
         Console.WriteLine("5) Edit a Category Name");
         Console.WriteLine("6) Display a Product");
         Console.WriteLine("7) Display All Products");
@@ -29,28 +30,42 @@ try
         Console.WriteLine("9) Edit a Product Name");
         Console.WriteLine("\"q\" to quit");
         choice = Console.ReadLine();
-        Console.Clear();
-        logger.Info($"Option {choice} selected");
+            //Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            logger.Info($"Option {choice} selected");
+            Console.ForegroundColor = ConsoleColor.Black;
+        
         if (choice == "1")  //Display Categories
         {
-            var query = db.Categories.OrderBy(p => p.CategoryName);
+            var query = db.Categories.OrderBy(c => c.CategoryId);
 
-            Console.ForegroundColor = ConsoleColor.Green;
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"{query.Count()} records returned");
-            Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                // display selected product and all of its fields
+            Category category = new Category();
+            Console.WriteLine(category.DisplayHeader());
+                Console.ForegroundColor = ConsoleColor.Magenta;
+
             foreach (var item in query)
             {
-                Console.WriteLine($"{item.CategoryName} - {item.Description}");
+                Console.WriteLine(item.ToString());
+                //Console.WriteLine($"{item.CategoryId}:  {item.CategoryName} - {item.Description}");
             }
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
         }
                 else if (choice == "2") //Add Category
         {
             Category category = new Category();
+
+                // auto-generate the new CategoryId
+            var query = db.Categories.OrderByDescending(c => c.CategoryId).FirstOrDefault();
+            category.CategoryId=query.CategoryId+1;
+
+
             Console.WriteLine("Enter Category Name:");
             category.CategoryName = Console.ReadLine();
-            Console.WriteLine("Enter the Category Description:");
-            category.Description = Console.ReadLine();
+
             ValidationContext context = new ValidationContext(category, null, null);
             List<ValidationResult> results = new List<ValidationResult>();
 
@@ -66,9 +81,12 @@ try
                 }
                 else
                 {
-                    logger.Info("Validation passed");
+                    // Name entered is valid, enter a category description
+                    Console.WriteLine("Enter the Category Description:");
+                    category.Description = Console.ReadLine();
+                        logger.Info("Validation passed");
                     // save category to db
-                    db.AddCategory(category);
+                    db.Categories.Add(category);
                     logger.Info(" Category added - {name}",category.CategoryName);
                 }
             }
@@ -79,29 +97,51 @@ try
                     logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
                 }
             }
-        }        else if (choice == "3")    //Display Category and related active products
+        }        
+                else if (choice == "3")    //Display a Category and its active products
         {
-            var query = db.Categories.OrderBy(p => p.CategoryId);
+            var query = db.Categories.OrderBy(c => c.CategoryId);
 
-            Console.WriteLine("Select the category whose products you want to display:");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine("\nSelect by CategoryId the Category whose active products you want to display:");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+
+            Category category2 = new Category();
+
+                // display categories
+            Console.WriteLine(category2.DisplayHeader());
             foreach (var item in query)
             {
-                Console.WriteLine($"{item.CategoryId}) {item.CategoryName}");
+                Console.WriteLine(item.ToString());
             }
-            Console.ForegroundColor = ConsoleColor.White;
-            int id = int.Parse(Console.ReadLine());
-            Console.Clear();
-            logger.Info($"CategoryId {id} selected");
-            Category category = db.Categories.Include("Products").FirstOrDefault(c => c.CategoryId == id);
-            Console.WriteLine($"{category.CategoryName} - {category.Description}");
-            foreach (Product p in category.Products)
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+
+                // obtain user selection of which category to display
+            if(int.TryParse(Console.ReadLine(),out int id)) // if not an actual number, breaks out
             {
-                if(p.Discontinued == false)
-                    Console.WriteLine($"\t{p.ProductName}");
+                    logger.Info($"CategoryId {id} selected");
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+
+                    // create an instance using the number entered but checking to see if that number actually is an id number
+                    // if it is not, the instance is not created
+                Category category = db.Categories.Include("Products").FirstOrDefault(c => c.CategoryId == id);
+
+                if(category != null) //if the instance was created, do these statements
+                {
+                    Console.WriteLine($"{category.CategoryName} - {category.Description}");
+                    foreach (Product p in category.Products)
+                    {
+                        if(p.Discontinued == false)
+                            Console.WriteLine($"  {p.ProductName}");
+                    }
+                        Console.ForegroundColor = ConsoleColor.Black; // completes this section and returns to menu
+                }
             }
+                // jumps here if the user entered either non-numeric or a numeric which does not match a current id
+            logger.Error("Invalid Id");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Black;
         }
-                else if (choice == "4") //Display all Categories and their related active products
+                else if (choice == "4") //Display all Categories with their active products
         {
             var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
             foreach (var item in query)
@@ -331,3 +371,4 @@ static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
     }
     return null;
 }
+
