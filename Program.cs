@@ -10,7 +10,11 @@ string path = Directory.GetCurrentDirectory() + "\\nlog.config";
 
 // create instance of Logger
 var logger = LogManager.LoadConfiguration(path).GetCurrentClassLogger();
+    Console.Clear();
+    Console.ForegroundColor = ConsoleColor.DarkGray;
 logger.Info("Program started");
+    Console.ForegroundColor = ConsoleColor.Black;
+    Console.WriteLine();
 
 try
 {
@@ -37,25 +41,32 @@ try
                 if(CreateCategory != null)
                 {
                     // Name entered is valid, enter a category description
+                        Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Enter the Category Description:");
+                        Console.ForegroundColor = ConsoleColor.Black;
                     CreateCategory.Description = Console.ReadLine();
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
                         logger.Info("Validation passed");
                     // save category to db
                     db.AddCategory(CreateCategory);
-                    logger.Info(" Category added - {name}",CreateCategory.CategoryName);
+                        logger.Info(" Category added - {name}",CreateCategory.CategoryName);
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
                 }
         }        
         else if (choice == "3") //Display a Category and its active products
         {
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\nSelect by CategoryId the Category whose active products you want to display:");
+                Console.ForegroundColor = ConsoleColor.Black;
             DisplayCategories(db);
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+
 
                 // obtain user selection of which category to display
             if(int.TryParse(Console.ReadLine(),out int id)) // if not an actual number, breaks out
             {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
                     logger.Info($"CategoryId {id} selected");
-                    Console.ForegroundColor = ConsoleColor.Magenta;
+
 
                     // create an instance using the number entered but checking to see if that number actually is an id number
                     // if it is not, the instance is not created
@@ -63,9 +74,11 @@ try
 
                 if(category != null) //if the instance was created, do these statements
                 {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"{category.CategoryName} - {category.Description}");
                     foreach (Product p in category.Products)
                     {
+                            Console.ForegroundColor = ConsoleColor.Magenta;
                         if(p.Discontinued == false)
                             Console.WriteLine($"  {p.ProductName}");
                     }
@@ -73,6 +86,7 @@ try
                 }
             }else{
                 // jumps here if the user entered either non-numeric or a numeric which does not match a current id
+                Console.ForegroundColor = ConsoleColor.DarkRed;
             logger.Error("Invalid Id");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Black;
@@ -85,9 +99,9 @@ try
             var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
             foreach (var item in query)
             {
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine($"{item.CategoryName}");
                     Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"{item.CategoryName}");
+                    Console.ForegroundColor = ConsoleColor.Magenta;
                 foreach (Product p in item.Products)
                 {
                     if(p.Discontinued == false)
@@ -99,14 +113,15 @@ try
         }
         else if (choice == "5") //Edit a Category Name
         {
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Enter the ID of the category name to edit:");
             DisplayCategories(db);
 
             if (int.TryParse(Console.ReadLine(), out int CategoryId))
             {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
                 logger.Info($"CategoryId {CategoryId} selected");
-                Console.ForegroundColor = ConsoleColor.Green;
+                    Console.ForegroundColor = ConsoleColor.Green;
                 
                 Category editCategory = db.Categories.FirstOrDefault(c => c.CategoryId == CategoryId);
                 if(editCategory != null)
@@ -116,37 +131,35 @@ try
                     {
                         UpdatedCategory.CategoryId = editCategory.CategoryId;
                         db.EditCategory(UpdatedCategory);
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
                         logger.Info($"Product (id: {editCategory.CategoryId}) updated");
+                            Console.ForegroundColor = ConsoleColor.Black;
                     }
                 } else {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
                     logger.Error("Invalid ID number entered");
-                    Console.ForegroundColor = ConsoleColor.Black;
+                        Console.ForegroundColor = ConsoleColor.Black;
                 }
             } else {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
                 logger.Error("Invalid input");
-                Console.ForegroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.Black;
             }
            
         }
         else if (choice == "6") //Display a Product and all of its fields
         {
-            var query = db.Products.OrderBy(p => p.ProductId);
-
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Select the product you want to display:");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            foreach (var item in query)
-            {
-                Console.WriteLine($"{item.ProductId}) {item.ProductName}");
-            }
-            Console.ForegroundColor = ConsoleColor.White;
+            DisplayProducts(db);
+                Console.ForegroundColor = ConsoleColor.Black;
 
                // obtain user selection of which category to display
             if(int.TryParse(Console.ReadLine(),out int id)) // if not an actual number, breaks out
             {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
                     logger.Info($"ProductId {id} selected");
-                    Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.ForegroundColor = ConsoleColor.Cyan;
 
                     // create an instance using the number entered but checking to see if that number actually is an id number
                     // if it is not, the instance is not created
@@ -156,11 +169,13 @@ try
                 {
                     //Console.WriteLine($"{product.ProductId}:  {product.ProductName}");
                     Console.WriteLine(showProduct.DisplayHeader());
+                        Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine(showProduct);
                         Console.ForegroundColor = ConsoleColor.Black; // completes this section and returns to menu
                 }
             }else{
                 // jumps here if the user entered either non-numeric or a numeric which does not match a current id
+                Console.ForegroundColor = ConsoleColor.DarkRed;
             logger.Error("Invalid Input");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Black;
@@ -168,48 +183,78 @@ try
         }
         else if (choice == "7") //Display All Products; user select all, active, or discontinued
         {
-            Console.WriteLine("Please select which products to display: \n1: All Products\n2: All Active Products\n3: Discontinued Products");
-            choice = Console.ReadLine();
-            //Console.Clear();
-            logger.Info($"Option {choice} selected");
-            if(choice == "1")
+            do
             {
-                var query = db.Products.OrderBy(p => p.ProductId);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Please select which products to display:");
+                    Console.ForegroundColor = ConsoleColor.Black;
+                Console.WriteLine("1: All Products\n2: Active Products Only\n3: Discontinued Products\n\"c\" to cancel");
+            
+                choice = Console.ReadLine();
+    
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                logger.Info($"Option {choice} selected");
+                    Console.ForegroundColor = ConsoleColor.Black;
+                
+                switch(choice){
+                    case "1":
+                        var query = db.Products.OrderBy(p => p.ProductId);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"{query.Count()} records returned - All Products");
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                foreach (var item in query)
-                {
-                    Console.WriteLine($"{item.ProductId} - {item.ProductName}");
+                            Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"{query.Count()} records returned - All Products");
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine($"{item.ProductId} - {item.ProductName}");
+                        }
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine();
+                        break;
+
+                    case "2":
+                        var query2 = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == false);
+
+                            Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"{query2.Count()} records returned - Active Products Only");
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                        foreach (var item in query2)
+                        {
+                            Console.WriteLine($"{item.ProductId} - {item.ProductName}");
+                        }
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine();
+                        break;
+
+                    case "3":
+                        var query3 = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == true);
+
+                            Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"{query3.Count()} records returned - Discontinued Products Only");
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                        foreach (var item in query3)
+                        {
+                            Console.WriteLine($"{item.ProductId} - {item.ProductName}");
+                        }
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine();
+                        break;
+
+                    case "c":
+                    case "C":
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("Exiting this menu");
+                            Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine();
+                        break;
+
+                    default:
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                        logger.Error("Invalid selection");
+                            Console.ForegroundColor = ConsoleColor.Black;
+                            Console.WriteLine();
+                        break;
                 }
-                Console.ForegroundColor = ConsoleColor.Black;
-            } else if (choice == "2")
-            {
-                var query = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == false);
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"{query.Count()} records returned - Active Products Only");
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                foreach (var item in query)
-                {
-                    Console.WriteLine($"{item.ProductId} - {item.ProductName}");
-                }
-                Console.ForegroundColor = ConsoleColor.Black;
-            } else if (choice == "3")
-            {
-                var query = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == true);
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"{query.Count()} records returned - Discontinued Products Only");
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                foreach (var item in query)
-                {
-                    Console.WriteLine($"{item.ProductId} - {item.ProductName}");
-                }
-                Console.ForegroundColor = ConsoleColor.Black;
-            }
-
+            } while (choice.ToLower() != "c");
         }
         else if (choice == "8") //Add Product
         {
@@ -218,9 +263,11 @@ try
             {
 
                 // obtain user input for all fields
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\nEnter the Supplier ID:"); 
             DisplaySuppliers(db);
                 newProduct.SupplierId=Convert.ToInt32(Console.ReadLine());
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\nEnter the Category ID:"); 
             DisplayCategories(db);
                 newProduct.CategoryId=Convert.ToInt32(Console.ReadLine());
@@ -237,18 +284,22 @@ try
             Console.Write("\nEnter the Reorder Level>>  "); // has default value
                 newProduct.ReorderLevel=Convert.ToInt16(Console.ReadLine());                */
 
-            Console.WriteLine(newProduct.DisplayHeader());
-            Console.WriteLine(newProduct);
+            //Console.WriteLine(newProduct.DisplayHeader());
+            //Console.WriteLine(newProduct);
 
                 db.AddProduct(newProduct);
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
                 logger.Info("Product added - {name}",newProduct.ProductName);
+                    Console.ForegroundColor = ConsoleColor.Black;
             }
 
 
         }
         else if (choice == "9") //Edit a Product
         {
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Choose a product to edit:");
+                Console.ForegroundColor = ConsoleColor.Black;
             DisplayProducts(db);
             
             if (int.TryParse(Console.ReadLine(), out int ProductId))
@@ -261,17 +312,27 @@ try
                     {
                         UpdatedProduct.ProductId = editProduct.ProductId;
                         db.EditProduct(UpdatedProduct);
-                        logger.Info($"Product (id: {editProduct.ProductId}) updated");
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            logger.Info($"Product (id: {editProduct.ProductId}) updated");
+                                Console.ForegroundColor = ConsoleColor.Black;
                     }
+                }else {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    logger.Error("Invalid ID number entered");
+                        Console.ForegroundColor = ConsoleColor.Black;
                 }
             } else {
-                logger.Error("Invalid Product ID");
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                logger.Error("Invalid input");
+                    Console.ForegroundColor = ConsoleColor.Black;
             }
 
         }
         else if (choice == "10") //Delete a Product
         {
+                Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Choose a product to delete:");
+                Console.ForegroundColor = ConsoleColor.Black;
             DisplayProducts(db);
             
             if (int.TryParse(Console.ReadLine(), out int ProductId))
@@ -280,10 +341,18 @@ try
                 if(deleteProduct != null)
                 {
                     db.DeleteProduct(deleteProduct);
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
                     logger.Info($"Product (id: {deleteProduct.ProductId}) deleted");
+                        Console.ForegroundColor = ConsoleColor.Black;
+                }else {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    logger.Error("Invalid ID number entered");
+                        Console.ForegroundColor = ConsoleColor.Black;
                 }
             } else {
-                logger.Error("Invalid Product ID");
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                logger.Error("Invalid input");
+                    Console.ForegroundColor = ConsoleColor.Black;
             }
 
         }
@@ -294,16 +363,22 @@ try
 }
 catch (Exception ex)
 {
+        Console.ForegroundColor = ConsoleColor.DarkRed;
     logger.Error(ex.Message);
+        Console.ForegroundColor = ConsoleColor.Black;
 }
 
+    Console.ForegroundColor = ConsoleColor.DarkGray;
 logger.Info("Program ended");
+    Console.ForegroundColor = ConsoleColor.Black;
 
 
 static Product InputProduct(NWConsole_23_kjbContext db, Logger logger)
 {
     Product product = new Product();
+        Console.ForegroundColor = ConsoleColor.Green;
     Console.WriteLine("Enter the Product name");
+        Console.ForegroundColor = ConsoleColor.Black;
     product.ProductName = Console.ReadLine();
 
     ValidationContext context = new ValidationContext(product, null, null);
@@ -335,7 +410,9 @@ static Product InputProduct(NWConsole_23_kjbContext db, Logger logger)
 static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
 {
     Category category = new Category();
+        Console.ForegroundColor = ConsoleColor.Green;
     Console.WriteLine("Enter the Category name");
+        Console.ForegroundColor = ConsoleColor.Black;
     category.CategoryName = Console.ReadLine();
 
     ValidationContext context = new ValidationContext(category, null, null);
@@ -361,6 +438,7 @@ static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
     {
         foreach (var result in results)
         {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
         }
     }
@@ -401,9 +479,9 @@ static void DisplayProducts(NWConsole_23_kjbContext db){
     var query = db.Products.OrderBy(p => p.ProductId);
         Console.ForegroundColor = ConsoleColor.DarkCyan;
 
-        // display selected category and all of its fields
+        // display selected product and all of its fields
     Product product = new Product();
-    Console.WriteLine($"{0,-5}{1,-42}","Product ID","Product Name");
+    Console.WriteLine("ID   Product Name");
         Console.ForegroundColor = ConsoleColor.Magenta;
 
     foreach (var item in query)
