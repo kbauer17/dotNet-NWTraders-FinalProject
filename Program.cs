@@ -19,14 +19,13 @@ try
     do
     {
         UserMenu();
-
         choice = Console.ReadLine();
             //Console.Clear();
             Console.ForegroundColor = ConsoleColor.DarkGray;
             logger.Info($"Option {choice} selected");
             Console.ForegroundColor = ConsoleColor.Black;
         
-        if (choice == "1")  //Display Categories
+        if (choice == "1")      //Display Categories
         {
             DisplayCategories(db);
                 Console.ForegroundColor = ConsoleColor.Black;
@@ -45,23 +44,11 @@ try
                     db.AddCategory(CreateCategory);
                     logger.Info(" Category added - {name}",CreateCategory.CategoryName);
                 }
-
         }        
         else if (choice == "3") //Display a Category and its active products
         {
-            var query = db.Categories.OrderBy(c => c.CategoryId);
-
             Console.WriteLine("\nSelect by CategoryId the Category whose active products you want to display:");
-                Console.ForegroundColor = ConsoleColor.Magenta;
-
-            Category category2 = new Category();
-
-                // display categories
-            Console.WriteLine(category2.DisplayHeader());
-            foreach (var item in query)
-            {
-                Console.WriteLine(item.ToString());
-            }
+            DisplayCategories(db);
                 Console.ForegroundColor = ConsoleColor.DarkGray;
 
                 // obtain user selection of which category to display
@@ -84,11 +71,12 @@ try
                     }
                         Console.ForegroundColor = ConsoleColor.Black; // completes this section and returns to menu
                 }
-            }
+            }else{
                 // jumps here if the user entered either non-numeric or a numeric which does not match a current id
             logger.Error("Invalid Id");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Black;
+            }
         }
         else if (choice == "4") //Display all Categories with their active products
         {
@@ -153,27 +141,43 @@ try
                 Console.WriteLine($"{item.ProductId}) {item.ProductName}");
             }
             Console.ForegroundColor = ConsoleColor.White;
-            int id = int.Parse(Console.ReadLine());
-            Console.Clear();
-            logger.Info($"ProductId {id} selected");
-                // display selected product and all of its fields
-            Product showProduct = db.Products.FirstOrDefault(p=>p.ProductId==id);
-            Console.WriteLine(showProduct.DisplayHeader());
-            Console.WriteLine(showProduct);
 
+               // obtain user selection of which category to display
+            if(int.TryParse(Console.ReadLine(),out int id)) // if not an actual number, breaks out
+            {
+                    logger.Info($"ProductId {id} selected");
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+
+                    // create an instance using the number entered but checking to see if that number actually is an id number
+                    // if it is not, the instance is not created
+                Product showProduct = db.Products.FirstOrDefault(p => p.ProductId == id);
+
+                if(showProduct != null) //if the instance was created, do these statements
+                {
+                    //Console.WriteLine($"{product.ProductId}:  {product.ProductName}");
+                    Console.WriteLine(showProduct.DisplayHeader());
+                    Console.WriteLine(showProduct);
+                        Console.ForegroundColor = ConsoleColor.Black; // completes this section and returns to menu
+                }
+            }else{
+                // jumps here if the user entered either non-numeric or a numeric which does not match a current id
+            logger.Error("Invalid Input");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Black;
+            }
         }
         else if (choice == "7") //Display All Products; user select all, active, or discontinued
         {
             Console.WriteLine("Please select which products to display: \n1: All Products\n2: All Active Products\n3: Discontinued Products");
             choice = Console.ReadLine();
-            Console.Clear();
+            //Console.Clear();
             logger.Info($"Option {choice} selected");
             if(choice == "1")
             {
                 var query = db.Products.OrderBy(p => p.ProductId);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"{query.Count()} records returned");
+                Console.WriteLine($"{query.Count()} records returned - All Products");
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 foreach (var item in query)
                 {
@@ -185,7 +189,7 @@ try
                 var query = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == false);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"{query.Count()} records returned");
+                Console.WriteLine($"{query.Count()} records returned - Active Products Only");
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 foreach (var item in query)
                 {
@@ -197,7 +201,7 @@ try
                 var query = db.Products.OrderBy(p => p.ProductId).Where(p => p.Discontinued == true);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"{query.Count()} records returned");
+                Console.WriteLine($"{query.Count()} records returned - Discontinued Products Only");
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 foreach (var item in query)
                 {
@@ -212,25 +216,26 @@ try
             Product newProduct = InputProduct(db, logger);
             if(newProduct != null)
             {
-                // auto-generate the new ProductID
-            var query = db.Products.OrderByDescending(p => p.ProductId).FirstOrDefault();
-            newProduct.ProductId=query.ProductId+1;
 
-                // obtain user input for all other fields
-            Console.Write("\nEnter the Supplier ID>>  ");
+                // obtain user input for all fields
+            Console.WriteLine("\nEnter the Supplier ID:"); 
+            DisplaySuppliers(db);
                 newProduct.SupplierId=Convert.ToInt32(Console.ReadLine());
-            Console.Write("\nEnter the Category ID>>  ");
+            Console.WriteLine("\nEnter the Category ID:"); 
+            DisplayCategories(db);
                 newProduct.CategoryId=Convert.ToInt32(Console.ReadLine());
-            Console.Write("\nEnter the Quantity per Unit>>  ");
+            
+            /*
+            Console.Write("\nEnter the Quantity per Unit>>  "); // no default value, max length 20
                 newProduct.QuantityPerUnit=Console.ReadLine();
-            Console.Write("\nEnter the Unit Price>>  ");
+            Console.Write("\nEnter the Unit Price>>  "); // has default value
                 newProduct.UnitPrice=Convert.ToDecimal(Console.ReadLine());
-            Console.Write("\nEnter the Units in Stock>>  ");
+            Console.Write("\nEnter the Units in Stock>>  "); // has default value
                 newProduct.UnitsInStock=Convert.ToInt16(Console.ReadLine());
-            Console.Write("\nEnter the Units on Order>>  ");
+            Console.Write("\nEnter the Units on Order>>  "); // has default value
                 newProduct.UnitsOnOrder=Convert.ToInt16(Console.ReadLine());
-            Console.Write("\nEnter the Reorder Level>>  ");
-                newProduct.ReorderLevel=Convert.ToInt16(Console.ReadLine());
+            Console.Write("\nEnter the Reorder Level>>  "); // has default value
+                newProduct.ReorderLevel=Convert.ToInt16(Console.ReadLine());                */
 
             Console.WriteLine(newProduct.DisplayHeader());
             Console.WriteLine(newProduct);
@@ -244,11 +249,8 @@ try
         else if (choice == "9") //Edit a Product
         {
             Console.WriteLine("Choose a product to edit:");
-            var products = db.Products.OrderBy(p => p.ProductId);
-            foreach (var item in products)
-            {
-                Console.WriteLine($"{item.ProductId}: {item.ProductName}");
-            }
+            DisplayProducts(db);
+            
             if (int.TryParse(Console.ReadLine(), out int ProductId))
             {
                 Product editProduct = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
@@ -267,7 +269,25 @@ try
             }
 
         }
-        
+        else if (choice == "10") //Delete a Product
+        {
+            Console.WriteLine("Choose a product to delete:");
+            DisplayProducts(db);
+            
+            if (int.TryParse(Console.ReadLine(), out int ProductId))
+            {
+                Product deleteProduct = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
+                if(deleteProduct != null)
+                {
+                    db.DeleteProduct(deleteProduct);
+                    logger.Info($"Product (id: {deleteProduct.ProductId}) deleted");
+                }
+            } else {
+                logger.Error("Invalid Product ID");
+            }
+
+        }
+      
         Console.WriteLine();
 
     } while (choice.ToLower() != "q");
@@ -294,8 +314,13 @@ static Product InputProduct(NWConsole_23_kjbContext db, Logger logger)
     {
         // prevent duplicate product names
         if (db.Products.Any(p => p.ProductName == product.ProductName)) {
-            // generate error
-             results.Add(new ValidationResult("Product name exists", new string[] { "Name" }));
+            // generate validation error if the name is a duplicat
+            isValid = false;
+            results.Add(new ValidationResult("Product name exists", new string[] { "Name" }));
+        } else if(product.ProductName.Length > 40){
+            // generate validation error if the name exceeds the maximum number of characters allowed
+            isValid = false;
+            results.Add(new ValidationResult("Product name length exceeds maximum 40 characters", new string[] { "Name" }));
         } else {
             return product;
         }
@@ -307,7 +332,7 @@ static Product InputProduct(NWConsole_23_kjbContext db, Logger logger)
     return null;
 }
 
-static Category InputCategory(NWConsole_23_kjbContext db, Logger logger) //currently called in option 5 Edit Category Name
+static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
 {
     Category category = new Category();
     Console.WriteLine("Enter the Category name");
@@ -353,6 +378,7 @@ static void UserMenu(){
     Console.WriteLine("7) Display All Products");
     Console.WriteLine("8) Add Product");
     Console.WriteLine("9) Edit a Product Name");
+    Console.WriteLine("10) Delete a Product");
     Console.WriteLine("\"q\" to quit");
 }
 
@@ -360,9 +386,40 @@ static void DisplayCategories(NWConsole_23_kjbContext db){
     var query = db.Categories.OrderBy(c => c.CategoryId);
         Console.ForegroundColor = ConsoleColor.DarkCyan;
 
-        // display selected product and all of its fields
+        // display selected category and all of its fields
     Category category = new Category();
     Console.WriteLine(category.DisplayHeader());
+        Console.ForegroundColor = ConsoleColor.Magenta;
+
+    foreach (var item in query)
+    {
+        Console.WriteLine(item.ToString());
+    }
+}
+
+static void DisplayProducts(NWConsole_23_kjbContext db){
+    var query = db.Products.OrderBy(p => p.ProductId);
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+
+        // display selected category and all of its fields
+    Product product = new Product();
+    Console.WriteLine($"{0,-5}{1,-42}","Product ID","Product Name");
+        Console.ForegroundColor = ConsoleColor.Magenta;
+
+    foreach (var item in query)
+    {
+        //Console.WriteLine(item.ToString());
+        Console.WriteLine($"{item.ProductId}: {item.ProductName}");
+    }
+}
+
+static void DisplaySuppliers(NWConsole_23_kjbContext db){
+    var query = db.Suppliers.OrderBy(s => s.SupplierId);
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+
+        // display selected category and all of its fields
+    Supplier supplier = new Supplier();
+    Console.WriteLine(supplier.DisplayHeader());
         Console.ForegroundColor = ConsoleColor.Magenta;
 
     foreach (var item in query)

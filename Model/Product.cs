@@ -23,13 +23,16 @@ namespace Northwind_console.Model
 
         public string DisplayHeader()
         {
-            String str = String.Format("{0,-15}{1,-45}{2,-15}{3,-15}{4,-20}{5,-15}{6,-20}{7,-20}{8,-15}{9,-15}","Product ID","Product Name","Supplier ID","Category ID","Quantity Per Unit","Unit Price","Units in Stock","Units on Order","Reorder Level","Discontinued");
-            return str;
+            String line1 = String.Format("{0,-8}{1,-42}{2,-10}{3,-10}{4,-20}{5,-10}{6,-10}{7,-10}{8,-10}{9,-15}","","","Supplier","Category","Quantity","Unit","Units","Units","Reorder","");
+
+            String line2 = String.Format("\n{0,-8}{1,-42}{2,-10}{3,-10}{4,-20}{5,-10}{6,-10}{7,-10}{8,-10}{9,-15}","ID","Product Name","ID","ID","Per Unit","Price","in Stock","on Order","Level","Discontinued");
+
+            return line1+line2;
         }
 
         public override string ToString()
         {
-            String str = String.Format("{0,-15}{1,-45}{2,-15}{3,-15}{4,-20}{5,-15}{6,-20}{7,-20}{8,-15}{9,-15}",ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued);
+            String str = String.Format("{0,-8}{1,-42}{2,-10}{3,-10}{4,-20}{5,-10}{6,-10}{7,-10}{8,-10}{9,-15}",ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued);
             return str;
         }
 
