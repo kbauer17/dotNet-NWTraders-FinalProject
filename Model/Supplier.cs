@@ -22,6 +22,19 @@ namespace Northwind_console.Model
         public string Phone { get; set; }
         public string Fax { get; set; }
 
+        public string DisplayHeader()
+        {
+            String str = String.Format("{0,-15}{1,-25}","Supplier ID","Company Name");
+            return str;
+        }
+
+        public override string ToString()
+        {
+            String str = String.Format("{0,-15}{1,-25}",SupplierId,CompanyName);
+            return str;
+        }
+
+
         public virtual ICollection<Product> Products { get; set; }
     }
 }
