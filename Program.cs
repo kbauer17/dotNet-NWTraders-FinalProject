@@ -501,30 +501,62 @@ try
                 Console.ForegroundColor = ConsoleColor.Black;
             DisplayProducts(db);
             
-            if (int.TryParse(Console.ReadLine(), out int ProductId))
+            if (int.TryParse(Console.ReadLine(), out int ProductId)) // confirm an actual number was entered
             {
-                Product deleteProduct = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
-                if(deleteProduct != null)
-                {
-                    db.DeleteProduct(deleteProduct);
                         Console.ForegroundColor = ConsoleColor.DarkGray;
-                    logger.Info($"Product (id: {deleteProduct.ProductId}) deleted");
+                    logger.Info($"ProductId {ProductId} selected");
                         Console.ForegroundColor = ConsoleColor.Black;
-                }else {
+                Product deleteProduct = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
+                if(deleteProduct != null) // confirm the selection matches a product Id
+                {
+                    // determine if this product id has ever been ordered
+                    var query4 = db.OrderDetails.OrderBy(od => od.OrderDetailsId).Where(p => p.ProductId == ProductId);
+
+                    if(query4 != null) 
+                    {
+                        // check for orders of this product
+                        if(query4.Count() != 0)
+                        {
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.WriteLine($"\nThis product has history on {query4.Count()} orders and should not be deleted.\n");
+                                Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                        else
+                        {
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                            Console.WriteLine($"This product has history on {query4.Count()} orders and will be deleted.");
+                                Console.ForegroundColor = ConsoleColor.Black;
+
+                            //Product deleteProduct = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
+                            db.DeleteProduct(deleteProduct);
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            logger.Info($"Product (id: {deleteProduct.ProductId}) deleted");
+                                    //Console.WriteLine("Currently commented out the delete method");
+                                Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                    }
+                    else
+                    {
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                        logger.Error("Invalid ID number entered");
+                            Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                }
+                else 
+                {
                         Console.ForegroundColor = ConsoleColor.DarkRed;
-                    logger.Error("Invalid ID number entered");
+                    logger.Error("Invalid input for product id");
                         Console.ForegroundColor = ConsoleColor.Black;
                 }
-            } else {
+            }
+            else
+            {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                logger.Error("Invalid input");
+                logger.Error("Invalid input"); // was not a number
                     Console.ForegroundColor = ConsoleColor.Black;
             }
-
         }
-      
         Console.WriteLine();
-
     } while (choice.ToLower() != "q");
 }
 catch (Exception ex)
