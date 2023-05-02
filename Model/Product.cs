@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Northwind_console.Model
 {
@@ -32,7 +33,7 @@ namespace Northwind_console.Model
 
         public override string ToString()
         {
-            String str = String.Format("{0,-8}{1,-42}{2,-10}{3,-10}{4,-20}{5,-10}{6,-10}{7,-10}{8,-10}{9,-15}",ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued);
+            String str = String.Format("{0,-8}{1,-42}{2,-10}{3,-10}{4,-20}{5,-10:C}{6,-10}{7,-10}{8,-10}{9,-15}",ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued);
             return str;
         }
 

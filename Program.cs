@@ -324,21 +324,164 @@ try
             Console.WriteLine("Choose a product to edit:");
                 Console.ForegroundColor = ConsoleColor.Black;
             DisplayProducts(db);
-            
+                // verify selection of a product Id
             if (int.TryParse(Console.ReadLine(), out int ProductId))
             {
                 Product editProduct = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
                 if(editProduct != null)
                 {
-                    Product UpdatedProduct = InputProduct(db, logger);
-                    if(UpdatedProduct != null)
+                    string userInput;
+                    do
                     {
-                        UpdatedProduct.ProductId = editProduct.ProductId;
-                        db.EditProduct(UpdatedProduct);
-                                Console.ForegroundColor = ConsoleColor.DarkGray;
-                            logger.Info($"Product (id: {editProduct.ProductId}) updated");
-                                Console.ForegroundColor = ConsoleColor.Black;
-                    }
+                        // display selected product current data
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine(editProduct.DisplayHeader());
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine(editProduct);
+                        Console.WriteLine();
+                        
+                        // provide menu of fields to edit
+                            Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine("Select a field to edit:\n1: Product Name\n2: Supplier Id\n3: Category Id\n4: Quantity per Unit\n5: Unit Price\n6: Units in Stock\n7: Units on Order\n8: Reorder Level\n9: Discontinued status\n\"x\" to exit this menu");
+                        userInput = Console.ReadLine();
+    
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                        logger.Info($"Option {userInput} selected");
+                            Console.ForegroundColor = ConsoleColor.Black;
+                        
+                        switch(userInput){
+                            case "1":       // update Product Name
+                                Product UpdatedProduct = InputProduct(db, logger);
+                                if(UpdatedProduct != null)
+                                {
+                                    UpdatedProduct.ProductId = editProduct.ProductId;
+                                    db.EditProduct(UpdatedProduct);
+                                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                                        logger.Info($"Product (id: {editProduct.ProductId}) updated");
+                                            Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                break;
+
+                            case "2":       // update Supplier Id
+                                Supplier selectedSupplier = SelectSupplier(db, logger);
+
+                                // if supplier selection successful, continue obtaining user input and populating fields
+                                if(selectedSupplier != null) 
+                                {
+                                    editProduct.SupplierId = selectedSupplier.SupplierId;
+                                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                                        logger.Info($"Product (id: {editProduct.ProductId}) updated");
+                                            Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                else    // if supplier selection unsuccessful, display error and return to main menu
+                                {
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                    logger.Error("Invalid input for SupplierId");
+                                        Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                break;
+
+                            case "3":       // update Category Id
+                                Category selectedCategory = SelectCategory(db, logger);
+
+                                // if category selection successful, continue obtaining user input and populating fields
+                                if(selectedCategory != null) 
+                                {
+                                    editProduct.SupplierId = selectedCategory.CategoryId;
+                                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                                        logger.Info($"Product (id: {editProduct.ProductId}) updated");
+                                            Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                else    // if category selection unsuccessful, display error and return to main menu
+                                {
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                    logger.Error("Invalid input for Category Id");
+                                        Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                break;
+
+                            case "4":       // update Quantity Per Unit
+                                editProduct.QuantityPerUnit = InputQtyPerUnit(db,logger);
+
+                                if(editProduct.QuantityPerUnit != null) // if category selection successful, continue obtaining user input and populating fields
+                                {
+                                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                                    logger.Info($"Product (id: {editProduct.ProductId}) updated");
+                                        Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                else  // if Quantity per Unit entry unsuccessful, display error message and loop to try again
+                                {
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                    logger.Error("Invalid input for Quantity per Unit");
+                                        Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                break;
+
+                            case "5":       // update Unit Price
+                                editProduct.UnitPrice = InputUnitPrice(db,logger);
+                                break;
+
+                            case "6":       // update Units in Stock
+                                editProduct.UnitsInStock = InputUnitsInStock(db,logger);
+                                break;
+
+                            case "7":       // update Units on Order
+                                editProduct.UnitsOnOrder = InputUnitsOnOrder(db,logger);
+                                break;
+
+                            case "8":       // update Reorder Level
+                                editProduct.ReorderLevel = InputReorderLevel(db,logger);
+                                break;
+
+                            case "9":       // update Discontinued status
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine("Is the product active? (Y/N)");
+                                string status = Console.ReadLine();
+                                if(status.ToLower() == "y"){
+                                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                                        logger.Info("Product status:  Active");
+                                            Console.WriteLine();
+                                            Console.ForegroundColor = ConsoleColor.Black;
+                                    editProduct.Discontinued = false;
+                                } 
+                                else
+                                {
+                                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                                        logger.Info("Product status:  Discontinued");
+                                            Console.WriteLine();
+                                            Console.ForegroundColor = ConsoleColor.Black;
+                                    editProduct.Discontinued = true;
+                                }
+                                break;
+
+                            case "x":
+                            case "X":
+                                    Console.ForegroundColor = ConsoleColor.Cyan;
+                                Console.WriteLine("Exiting this menu");
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                                    Console.WriteLine();
+                                break;
+                            
+                            default:
+                                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                                logger.Error("Invalid selection");
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                                    Console.WriteLine();
+                                break;
+
+                        }
+
+                    
+
+
+
+
+                    } while (userInput.ToLower() != "x");
+                    
+                    
+                    
+                    
+                    
                 }else {
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                     logger.Error("Invalid ID number entered");
@@ -419,6 +562,10 @@ static Product InputProduct(NWConsole_23_kjbContext db, Logger logger)
             // generate validation error if the name exceeds the maximum number of characters allowed
             isValid = false;
             results.Add(new ValidationResult("Product name length exceeds maximum 40 characters", new string[] { "Name" }));
+        } else if(product.ProductName == ""){
+            // generate validation error if the name is blank
+            isValid = false;
+            results.Add(new ValidationResult("Product name should not be blank", new string[] { "Name" }));
         } else {
             return product;
         }
@@ -506,18 +653,122 @@ static String InputQtyPerUnit(NWConsole_23_kjbContext db, Logger logger)
     return null;
 }
 
+static decimal InputUnitPrice(NWConsole_23_kjbContext db, Logger logger)
+{
+    Product product = new Product();
+        // obtain user input
+        Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("\nEnter the unit price:"); 
+    
+        //check for actual number entry
+    if(decimal.TryParse(Console.ReadLine(),out decimal price)) 
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Unit price of {price} entered");
+            Console.ForegroundColor = ConsoleColor.Black;
+        product.UnitPrice = price;
+        return (decimal)product.UnitPrice;
+    }
+    else
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Invalid entry for Unit price;  default value will be used");
+            Console.ForegroundColor = ConsoleColor.Black;
+        return 0;
+    } 
+
+}
+
+static short InputUnitsInStock(NWConsole_23_kjbContext db, Logger logger)
+{
+    Product product = new Product();
+        // obtain user input
+        Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("\nEnter the number of units in stock:"); 
+    
+        //check for actual number entry
+    if(short.TryParse(Console.ReadLine(),out short unitsInStock)) 
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Unit price of {unitsInStock} entered");
+            Console.ForegroundColor = ConsoleColor.Black;
+        product.UnitsInStock = unitsInStock;
+        return (short)product.UnitsInStock;
+    }
+    else
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Invalid entry for units in stock;  default value will be used");
+            Console.ForegroundColor = ConsoleColor.Black;
+        return 0;
+    } 
+
+}
+
+static short InputUnitsOnOrder(NWConsole_23_kjbContext db, Logger logger)
+{
+    Product product = new Product();
+        // obtain user input
+        Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("\nEnter the number of units on order:"); 
+    
+        //check for actual number entry
+    if(short.TryParse(Console.ReadLine(),out short unitsOnOrder)) 
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Unit price of {unitsOnOrder} entered");
+            Console.ForegroundColor = ConsoleColor.Black;
+        product.UnitsOnOrder = unitsOnOrder;
+        return (short)product.UnitsOnOrder;
+    }
+    else
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Invalid entry for units on order;  default value will be used");
+            Console.ForegroundColor = ConsoleColor.Black;
+        return 0;
+    } 
+
+}
+
+static short InputReorderLevel(NWConsole_23_kjbContext db, Logger logger)
+{
+    Product product = new Product();
+        // obtain user input
+        Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("\nEnter the reorder level:"); 
+    
+        //check for actual number entry
+    if(short.TryParse(Console.ReadLine(),out short reorder)) 
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Unit price of {reorder} entered");
+            Console.ForegroundColor = ConsoleColor.Black;
+        product.ReorderLevel = reorder;
+        return (short)product.ReorderLevel;
+    }
+    else
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"Invalid entry for reorder level;  default value will be used");
+            Console.ForegroundColor = ConsoleColor.Black;
+        return 0;
+    } 
+
+}
+
 
 static void UserMenu(){
         Console.ForegroundColor = ConsoleColor.Black;
     Console.WriteLine("1) Display Categories");
-    Console.WriteLine("2) Add Category");
+    Console.WriteLine("2) Add a Category");
     Console.WriteLine("3) Display a Category with its active products");
     Console.WriteLine("4) Display all Categories with their active products");
     Console.WriteLine("5) Edit a Category Name");
     Console.WriteLine("6) Display a Product");
-    Console.WriteLine("7) Display All Products");
-    Console.WriteLine("8) Add Product");
-    Console.WriteLine("9) Edit a Product Name");
+    Console.WriteLine("7) Display all Products");
+    Console.WriteLine("8) Add a Product");
+    Console.WriteLine("9) Edit a Product");
     Console.WriteLine("10) Delete a Product");
     Console.WriteLine("\"q\" to quit");
 }
