@@ -261,39 +261,62 @@ try
             Product newProduct = InputProduct(db, logger);
             if(newProduct != null)
             {
+                // obtain user input for Supplier of new product
+                Supplier selectedSupplier = SelectSupplier(db, logger);
 
-                // obtain user input for all fields
-                Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\nEnter the Supplier ID:"); 
-            DisplaySuppliers(db);
-                newProduct.SupplierId=Convert.ToInt32(Console.ReadLine());
-                Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\nEnter the Category ID:"); 
-            DisplayCategories(db);
-                newProduct.CategoryId=Convert.ToInt32(Console.ReadLine());
-            
-            /*
-            Console.Write("\nEnter the Quantity per Unit>>  "); // no default value, max length 20
-                newProduct.QuantityPerUnit=Console.ReadLine();
-            Console.Write("\nEnter the Unit Price>>  "); // has default value
-                newProduct.UnitPrice=Convert.ToDecimal(Console.ReadLine());
-            Console.Write("\nEnter the Units in Stock>>  "); // has default value
-                newProduct.UnitsInStock=Convert.ToInt16(Console.ReadLine());
-            Console.Write("\nEnter the Units on Order>>  "); // has default value
-                newProduct.UnitsOnOrder=Convert.ToInt16(Console.ReadLine());
-            Console.Write("\nEnter the Reorder Level>>  "); // has default value
-                newProduct.ReorderLevel=Convert.ToInt16(Console.ReadLine());                */
+                // if supplier selection successful, continue obtaining user input and populating fields
+                if(selectedSupplier != null) 
+                {
+                    newProduct.SupplierId = selectedSupplier.SupplierId;
 
-            //Console.WriteLine(newProduct.DisplayHeader());
-            //Console.WriteLine(newProduct);
+                    // obtain category Id
+                    Category selectedCategory = SelectCategory(db,logger);
 
-                db.AddProduct(newProduct);
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                logger.Info("Product added - {name}",newProduct.ProductName);
-                    Console.ForegroundColor = ConsoleColor.Black;
+                    // if category selection successful, continue obtaining user input and populating fields
+                    if(selectedCategory != null)
+                    {
+                        newProduct.CategoryId = selectedCategory.CategoryId;
+
+                        // obtain Quantity Per Unit info (all other fields provide default values)
+                        newProduct.QuantityPerUnit = InputQtyPerUnit(db,logger);
+
+                        if(newProduct.QuantityPerUnit != null)
+                        {
+                                // add the new product record to the Products table
+                            db.AddProduct(newProduct);
+                                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                                logger.Info("Default values will be applied for remaining fields for {name}",newProduct.ProductName);
+                                logger.Info("Product added - {name}",newProduct.ProductName);
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                        else  // if Quantity per Unit entry unsuccessful, display info of it and create record (field not required but does not have a default)
+                        {
+                                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                                logger.Info("Quantity per Unit field is empty (value not required, no default value is provided)");
+                                    Console.ForegroundColor = ConsoleColor.Black;
+
+                                // add the new product record to the Products table
+                            db.AddProduct(newProduct);
+                                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                                logger.Info("Default values will be applied for remaining fields for {name}",newProduct.ProductName);
+                                logger.Info("Product added - {name}",newProduct.ProductName);
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                    }
+                    else  // if category selection unsuccessful, display error and return to main menu
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    logger.Error("Invalid input for CategoryId");
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                }
+                else    // if supplier selection unsuccessful, display error and return to main menu
+                {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    logger.Error("Invalid input for SupplierId");
+                        Console.ForegroundColor = ConsoleColor.Black;
+                }
             }
-
-
         }
         else if (choice == "9") //Edit a Product
         {
@@ -445,6 +468,45 @@ static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
     return null;
 }
 
+static String InputQtyPerUnit(NWConsole_23_kjbContext db, Logger logger)
+{
+    Product product = new Product();
+        Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("Enter the Quantity per Unit: ");
+    Console.WriteLine("Example entries:\t24 pieces\n\t\t\t24 - 355 ml bottles\n\t\t\t5 kg pkg\n\t\t\t10 pkgs");
+        Console.ForegroundColor = ConsoleColor.Black;
+    product.QuantityPerUnit = Console.ReadLine();
+
+    ValidationContext context = new ValidationContext(product, null, null);
+    List<ValidationResult> results = new List<ValidationResult>();
+
+    var isValid = Validator.TryValidateObject(product, context, results, true);
+    if (isValid)
+    {
+        // prevent exceeding max characters allowed
+        if (product.QuantityPerUnit.Length > 20){
+            // generate validation error if the name exceeds the maximum number of characters allowed
+            isValid = false;
+            results.Add(new ValidationResult("Entry exceeds maximum 20 characters", new string[] { "QuantityPerUnit" }));
+        } else if (product.QuantityPerUnit == "")
+        {
+            // generate validation warning that the field will be blank
+            isValid = false;
+            results.Add(new ValidationResult("Entry is blank", new string[] { "QuantityPerUnit" }));
+        }
+        else 
+        {
+            return product.QuantityPerUnit;
+        }
+    }
+     foreach (var result in results)
+    {
+        logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+    }
+    return null;
+}
+
+
 static void UserMenu(){
         Console.ForegroundColor = ConsoleColor.Black;
     Console.WriteLine("1) Display Categories");
@@ -503,5 +565,65 @@ static void DisplaySuppliers(NWConsole_23_kjbContext db){
     foreach (var item in query)
     {
         Console.WriteLine(item.ToString());
+    }
+}
+
+static Supplier SelectSupplier(NWConsole_23_kjbContext db, Logger logger)
+{
+        // obtain user input
+        Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("\nEnter the Supplier ID:"); 
+    DisplaySuppliers(db);
+
+        //check for actual number entry
+    if(Int32.TryParse(Console.ReadLine(),out Int32 supId)) 
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"SupplierId {supId} selected");
+            Console.ForegroundColor = ConsoleColor.Black;
+        
+        Supplier supplier = db.Suppliers.FirstOrDefault(s => s.SupplierId == supId);
+        if(supplier != null) // if the entered id matches an existing id, execute these statements
+        {
+            return supplier;
+        }
+        else
+        {
+            return null;
+        }
+    } 
+    else 
+    {
+        return null;
+    }
+}
+
+static Category SelectCategory(NWConsole_23_kjbContext db, Logger logger)
+{
+        // obtain user input
+        Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("\nEnter the Category ID:"); 
+    DisplayCategories(db);
+
+        //check for actual number entry
+    if(Int32.TryParse(Console.ReadLine(),out Int32 catId)) 
+    {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+        logger.Info($"SupplierId {catId} selected");
+            Console.ForegroundColor = ConsoleColor.Black;
+        
+        Category category = db.Categories.FirstOrDefault(c => c.CategoryId == catId);
+        if(category != null) // if the entered id matches an existing id, execute these statements
+        {
+            return category;
+        }
+        else
+        {
+            return null;
+        }
+    } 
+    else 
+    {
+        return null;
     }
 }
