@@ -24,7 +24,7 @@ try
     {
         UserMenu();
         choice = Console.ReadLine();
-            //Console.Clear();
+            
             Console.ForegroundColor = ConsoleColor.DarkGray;
             logger.Info($"Option {choice} selected");
             Console.ForegroundColor = ConsoleColor.Black;
@@ -66,7 +66,6 @@ try
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                     logger.Info($"CategoryId {id} selected");
 
-
                     // create an instance using the number entered but checking to see if that number actually is an id number
                     // if it is not, the instance is not created
                 Category category = db.Categories.Include("Products").FirstOrDefault(c => c.CategoryId == id);
@@ -83,8 +82,18 @@ try
                     }
                         Console.ForegroundColor = ConsoleColor.Black; // completes this section and returns to menu
                 }
-            }else{
-                // jumps here if the user entered either non-numeric or a numeric which does not match a current id
+                else
+                {
+                    // jumps here if the user entered either non-numeric or a numeric which does not match a current id
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    logger.Error("Invalid Id");
+                        Console.WriteLine();
+                        Console.ForegroundColor = ConsoleColor.Black;
+                }
+            }
+            else
+            {
+                // jumps here if the user entered either non-numeric
                 Console.ForegroundColor = ConsoleColor.DarkRed;
             logger.Error("Invalid Id");
             Console.WriteLine();
@@ -176,8 +185,18 @@ try
                     Console.WriteLine(showProduct);
                         Console.ForegroundColor = ConsoleColor.Black; // completes this section and returns to menu
                 }
-            }else{
-                // jumps here if the user entered either non-numeric or a numeric which does not match a current id
+                else
+                {
+                    // jumps here if the user entered a numeric which does not match a current id
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                logger.Error("Invalid Input");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Black;
+                }
+            }
+            else
+            {
+                // jumps here if the user entered either non-numeric
                 Console.ForegroundColor = ConsoleColor.DarkRed;
             logger.Error("Invalid Input");
             Console.WriteLine();
@@ -270,6 +289,10 @@ try
         else if (choice == "11") //Delete a Product
         {
             DeleteProduct(db,logger);
+        }
+        else if (choice == "12") //Clear screen
+        {
+            Console.Clear();
         }
         Console.WriteLine();
     } while (choice.ToLower() != "q");
@@ -519,6 +542,7 @@ static void UserMenu(){
     Console.WriteLine("9) Add a Product");
     Console.WriteLine("10) Edit a Product");
     Console.WriteLine("11) Delete a Product");
+    Console.WriteLine("12) Clear the screen");
     Console.WriteLine("\"q\" to quit");
 }
 
