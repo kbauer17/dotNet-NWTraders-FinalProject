@@ -102,8 +102,6 @@ try
         }
         else if (choice == "4") //Display all Categories with their active products
         {
-                Console.WriteLine();
-                
             var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
             foreach (var item in query)
             {
@@ -313,7 +311,7 @@ static Product InputProductName(NWConsole_23_kjbContext db, Logger logger)
 {
     Product product = new Product();
         Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine("Enter the Product name");
+    Console.WriteLine("Enter the Product name (maximum 40 characters)");
         Console.ForegroundColor = ConsoleColor.Black;
     product.ProductName = Console.ReadLine();
 
@@ -351,7 +349,7 @@ static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
 {
     Category category = new Category();
         Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine("Enter the Category name");
+    Console.WriteLine("Enter the Category name (maximum 15 characters)");
         Console.ForegroundColor = ConsoleColor.Black;
     category.CategoryName = Console.ReadLine();
 
@@ -366,11 +364,19 @@ static Category InputCategory(NWConsole_23_kjbContext db, Logger logger)
             // generate error
             isValid = false;
             results.Add(new ValidationResult("Category name exists", new string[] { "Name" }));
+        // prevent exceed allowed name length
         } else if(category.CategoryName.Length > 15){
             // generate error
             isValid = false;
             results.Add(new ValidationResult("Category name length exceeds maximum 15 characters", new string[] { "Name" }));
-        } else {
+        }
+         else if(category.CategoryName == ""){
+            // generate error
+            isValid = false;
+            results.Add(new ValidationResult("Category name shoulc not be blank", new string[] { "Name" }));
+        }
+        else
+        {
             return category;
         }
     }
@@ -389,7 +395,7 @@ static String InputQtyPerUnit(NWConsole_23_kjbContext db, Logger logger)
 {
     Product product = new Product();
         Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine("Enter the Quantity per Unit: ");
+    Console.WriteLine("Enter the Quantity per Unit (maximum 20 characters): ");
     Console.WriteLine("Example entries:\t24 pieces\n\t\t\t24 - 355 ml bottles\n\t\t\t5 kg pkg\n\t\t\t10 pkgs");
         Console.ForegroundColor = ConsoleColor.Black;
     product.QuantityPerUnit = Console.ReadLine();
@@ -572,7 +578,6 @@ static void DisplayProducts(NWConsole_23_kjbContext db){
 
     foreach (var item in query)
     {
-        //Console.WriteLine(item.ToString());
         Console.WriteLine($"{item.ProductId}: {item.ProductName}");
     }
 }
@@ -802,20 +807,10 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
 
                     case "4":       // update Quantity Per Unit
                         editProduct.QuantityPerUnit = InputQtyPerUnit(db,logger);
-                        
-                        if(editProduct.QuantityPerUnit != null) 
-                        {
-                            db.EditProduct(editProduct);
+                        db.EditProduct(editProduct);
                                 Console.ForegroundColor = ConsoleColor.DarkGray;
                             logger.Info($"Product (id: {editProduct.ProductId}) updated");
                                 Console.ForegroundColor = ConsoleColor.Black;
-                        }
-                        else  // if Quantity per Unit entry unsuccessful, display error message and loop to try again
-                        {
-                                Console.ForegroundColor = ConsoleColor.DarkRed;
-                            logger.Error("Invalid input for Quantity per Unit");
-                                Console.ForegroundColor = ConsoleColor.Black;
-                        }                                                           
                         break;
 
                     case "5":       // update Unit Price
@@ -1039,23 +1034,10 @@ static void DeleteCategory(NWConsole_23_kjbContext db,Logger logger)
                 }
                 else if(deleteCategory.Products.Count() != 0)
                 {
-                    Console.WriteLine($"Category {deleteCategory.CategoryName} contains products with order history and cannot be deleted.\nWould you like to rename the category to 'Inactive-{deleteCategory.CategoryName}'? (Y/N)");
-                    string uInput = Console.ReadLine();
-                        if(uInput.ToLower() == "y")
-                        {
-                            deleteCategory.CategoryName = "Inactive-"+deleteCategory.CategoryName;
-                                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                                logger.Info($"Category id: {deleteCategory.CategoryId} renamed to {deleteCategory.CategoryName}");
-                                    Console.ForegroundColor = ConsoleColor.Black;
-                        }
-                        else
-                        {
-                            logger.Info("Category name unchanged.");
-                        }
+                    Console.WriteLine($"Category {deleteCategory.CategoryName} contains products with order history and cannot be deleted.");
                 }
 
             }
-
 
         }
         else 
