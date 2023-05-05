@@ -505,6 +505,8 @@ static short InputReorderLevel(NWConsole_23_kjbContext db, Logger logger)
 }
 
 static void UserMenu(){
+        Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine("Main Menu");
         Console.ForegroundColor = ConsoleColor.Black;
     Console.WriteLine("1) Display Categories");
     Console.WriteLine("2) Add a Category");
@@ -713,7 +715,7 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                 
                 // provide menu of fields to edit
                     Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Select a field to edit:\n1: Product Name\n2: Supplier Id\n3: Quantity per Unit\n4: Unit Price\n5: Units in Stock\n6: Units on Order\n7: Reorder Level\n8: Discontinued status\n\"x\" to exit this menu");
+                Console.WriteLine("Select a field to edit:\n1: Product Name\n2: Supplier Id\n3: Category Id\n4: Quantity per Unit\n5: Unit Price\n6: Units in Stock\n7: Units on Order\n8: Reorder Level\n9: Discontinued status\n\"x\" to exit this menu");
                 userInput = Console.ReadLine();
 
                     Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -725,8 +727,8 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                         Product UpdatedProduct = InputProductName(db, logger);
                         if(UpdatedProduct != null)
                         {
-                            UpdatedProduct.ProductId = editProduct.ProductId;
-                            db.EditProduct(UpdatedProduct);
+                            editProduct.ProductName=UpdatedProduct.ProductName;
+                            db.EditProduct(editProduct);
                                     Console.ForegroundColor = ConsoleColor.DarkGray;
                                 logger.Info($"Product (id: {editProduct.ProductId}) updated");
                                     Console.ForegroundColor = ConsoleColor.Black;
@@ -740,6 +742,7 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                         if(selectedSupplier != null) 
                         {
                             editProduct.SupplierId = selectedSupplier.SupplierId;
+                            db.EditProduct(editProduct);
                                     Console.ForegroundColor = ConsoleColor.DarkGray;
                                 logger.Info($"Product (id: {editProduct.ProductId}) updated");
                                     Console.ForegroundColor = ConsoleColor.Black;
@@ -752,17 +755,18 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                         }
                         break;
 
-                    /*
-                    case "3":       // update Category Id - removed as CategoryID cannot be editted
+                    
+                    case "3":       // update Category Id
                         Category selectedCategory = SelectCategory(db, logger);
 
                         // if category selection successful, continue obtaining user input and populating fields
                         if(selectedCategory != null) 
                         {
                                 editProduct.CategoryId = selectedCategory.CategoryId;
-                                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                                logger.Info($"Product id: {editProduct.ProductId} updated");
-                                    Console.ForegroundColor = ConsoleColor.Black;
+                                db.EditProduct(editProduct);
+                                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                                    logger.Info($"Product id: {editProduct.ProductId} updated");
+                                        Console.ForegroundColor = ConsoleColor.Black;
                         }
                         else    // if category selection unsuccessful, display error and return to main menu
                         {
@@ -770,13 +774,14 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                             logger.Error("Invalid input for Category Id");
                                 Console.ForegroundColor = ConsoleColor.Black;
                         }
-                        break;                                                              */
+                        break;                                                              
 
-                    case "3":       // update Quantity Per Unit
+                    case "4":       // update Quantity Per Unit
                         editProduct.QuantityPerUnit = InputQtyPerUnit(db,logger);
-
-                        if(editProduct.QuantityPerUnit != null) // if category selection successful, continue obtaining user input and populating fields
+                        
+                        if(editProduct.QuantityPerUnit != null) 
                         {
+                            db.EditProduct(editProduct);
                                 Console.ForegroundColor = ConsoleColor.DarkGray;
                             logger.Info($"Product (id: {editProduct.ProductId}) updated");
                                 Console.ForegroundColor = ConsoleColor.Black;
@@ -786,26 +791,42 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                                 Console.ForegroundColor = ConsoleColor.DarkRed;
                             logger.Error("Invalid input for Quantity per Unit");
                                 Console.ForegroundColor = ConsoleColor.Black;
-                        }
+                        }                                                           
                         break;
 
-                    case "4":       // update Unit Price
+                    case "5":       // update Unit Price
                         editProduct.UnitPrice = InputUnitPrice(db,logger);
+                        db.EditProduct(editProduct);
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            logger.Info($"Product id: {editProduct.ProductId} updated");
+                                Console.ForegroundColor = ConsoleColor.Black;
                         break;
 
-                    case "5":       // update Units in Stock
+                    case "6":       // update Units in Stock
                         editProduct.UnitsInStock = InputUnitsInStock(db,logger);
+                        db.EditProduct(editProduct);
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            logger.Info($"Product id: {editProduct.ProductId} updated");
+                                Console.ForegroundColor = ConsoleColor.Black;
                         break;
 
-                    case "6":       // update Units on Order
+                    case "7":       // update Units on Order
                         editProduct.UnitsOnOrder = InputUnitsOnOrder(db,logger);
+                        db.EditProduct(editProduct);
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            logger.Info($"Product id: {editProduct.ProductId} updated");
+                                Console.ForegroundColor = ConsoleColor.Black;
                         break;
 
-                    case "7":       // update Reorder Level
+                    case "8":       // update Reorder Level
                         editProduct.ReorderLevel = InputReorderLevel(db,logger);
+                        db.EditProduct(editProduct);
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            logger.Info($"Product id: {editProduct.ProductId} updated");
+                                Console.ForegroundColor = ConsoleColor.Black;
                         break;
 
-                    case "8":       // update Discontinued status
+                    case "9":       // update Discontinued status
                             Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("Is the product active? (Y/N)");
                         string status = Console.ReadLine();
@@ -815,6 +836,7 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                                     Console.WriteLine();
                                     Console.ForegroundColor = ConsoleColor.Black;
                             editProduct.Discontinued = false;
+                            db.EditProduct(editProduct);
                         } 
                         else
                         {
@@ -823,18 +845,19 @@ static void EditProduct(NWConsole_23_kjbContext db, Logger logger)
                                     Console.WriteLine();
                                     Console.ForegroundColor = ConsoleColor.Black;
                             editProduct.Discontinued = true;
+                            db.EditProduct(editProduct);
                         }
                         break;
 
                     case "x":
-                    case "X":
+                    case "X":       // exit this menu
                             Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine("Exiting this menu");
                             Console.ForegroundColor = ConsoleColor.Black;
                             Console.WriteLine();
                         break;
                     
-                    default:
+                    default:        // invalid selection
                             Console.ForegroundColor = ConsoleColor.DarkRed;
                         logger.Error("Invalid selection");
                             Console.ForegroundColor = ConsoleColor.Black;
@@ -994,9 +1017,12 @@ static void DeleteCategory(NWConsole_23_kjbContext db,Logger logger)
                 {
                     Console.WriteLine($"Category {deleteCategory.CategoryName} contains products with order history and cannot be deleted.\nWould you like to rename the category to 'Inactive-{deleteCategory.CategoryName}'? (Y/N)");
                     string uInput = Console.ReadLine();
-                        if(uInput.ToLower() == "Y")
+                        if(uInput.ToLower() == "y")
                         {
                             deleteCategory.CategoryName = "Inactive-"+deleteCategory.CategoryName;
+                                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                                logger.Info($"Category id: {deleteCategory.CategoryId} renamed to {deleteCategory.CategoryName}");
+                                    Console.ForegroundColor = ConsoleColor.Black;
                         }
                         else
                         {

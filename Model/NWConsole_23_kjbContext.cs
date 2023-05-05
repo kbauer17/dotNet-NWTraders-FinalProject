@@ -44,7 +44,7 @@ namespace Northwind_console.Model
         public void EditProduct(Product editProduct)
         {
             Product product = this.Products.Find(editProduct.ProductId);
-            product.ProductName = editProduct.ProductName;
+            product = editProduct;
             this.SaveChanges();
         }
 
